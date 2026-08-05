@@ -1,11 +1,7 @@
-import { customAlphabet } from 'nanoid';
 import { prisma } from '../../lib/prisma.js';
 import { PrismaClientKnownRequestError } from '../../generated/prisma/internal/prismaNamespace.js';
+import { generateShortCode } from './short-code.js';
 
-const generateShortCode = customAlphabet(
-  '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  6
-);
 
 export async function create(url: string) {
   const MAX_ATTEMPTS = 5;
