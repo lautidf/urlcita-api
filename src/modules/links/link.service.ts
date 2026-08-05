@@ -1,6 +1,6 @@
 import { prisma } from '../../lib/prisma.js';
 import { PrismaClientKnownRequestError } from '../../generated/prisma/internal/prismaNamespace.js';
-import { ConflictError } from '../../errors/errors.js';
+import { ConflictError, NotFoundError } from '../../errors/errors.js';
 import { generateShortCode } from './short-code.js';
 
 export async function create(url: string, shortCode?: string) {
@@ -45,6 +45,19 @@ export async function create(url: string, shortCode?: string) {
   throw new Error('Failed to generate a unique short code.');
 }
 
+export async function getOriginalUrl(shortCode: string) {
+  const link = await prisma.link.findUnique({
+    where: { shortCode },
+  });
+
+  if (!link) {
+    throw new NotFoundError('Link not found.');
+  }
+
+  return link.originalUrl;
+}
+
 export const linkService = {
   create,
+  getOriginalUrl,
 };

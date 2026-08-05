@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { create } from './link.controller.js';
+import { create, redirect } from './link.controller.js';
 
 const router = Router();
 
-router.post('/', create);
+router.post('/links', create);
+router.get('/:shortCode', redirect);
 
 export const linkRoutes = router;

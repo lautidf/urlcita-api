@@ -58,3 +58,22 @@ describe('POST /links', () => {
     expect(response.status).toBe(409);
   });
 });
+
+describe('GET /:shortCode', () => {
+  it('redirects to the original URL', async () => {
+    const link = await create();
+
+    const response = await request(app)
+      .get(`/${link.shortCode}`);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe(link.originalUrl);
+  });
+  
+  it('returns 404 if short code does not exist', async () => {
+    const response = await request(app)
+      .get('/badc0d');
+
+    expect(response.status).toBe(404);
+  });
+});
