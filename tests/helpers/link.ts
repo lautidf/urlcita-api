@@ -1,5 +1,5 @@
-import { prisma } from '../../src/lib/prisma';
-import { generateShortCode } from '../../src/modules/links/short-code';
+import { prisma } from '../../src/lib/prisma.js';
+import { generateShortCode } from '../../src/modules/links/short-code.js';
 
 export async function create() {
   const link = await prisma.link.create({
