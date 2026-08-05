@@ -4,3 +4,9 @@ export abstract class AppError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 }
+
+export class ConflictError extends AppError {
+  constructor(message: string) {
+    super(message, 409);
+  }
+}
