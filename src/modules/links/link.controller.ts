@@ -5,9 +5,9 @@ import { linkService } from './link.service.js';
 export async function create(req: Request, res: Response) {
   const { body } = createRequestSchema.parse(req);
 
-  const { url } = body;
+  const { url, shortCode } = body;
 
-  const link = await linkService.create(url);
+  const link = await linkService.create(url, shortCode);
 
   res.status(201).json(link);
 }
