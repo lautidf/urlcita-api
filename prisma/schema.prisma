@@ -14,7 +14,7 @@ model Link {
 	shortCode String @unique
   creatorId String
 
-  creator User @relation(fields: [creatorId], references: [id])
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
 	createdAt DateTime @default(now())
 }
