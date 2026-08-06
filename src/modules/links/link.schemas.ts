@@ -18,3 +18,11 @@ export const redirectParamsSchema = z.object({
 export const redirectRequestSchema = z.object({
   params: redirectParamsSchema,
 });
+
+export const getOneParamsSchema = z.object({
+  linkId: z.cuid2(),
+});
+
+export const getOneRequestSchema = z.object({
+  params: getOneParamsSchema,
+});

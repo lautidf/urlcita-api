@@ -3,7 +3,13 @@ import { PrismaClientKnownRequestError } from '../../generated/prisma/internal/p
 import { ConflictError, NotFoundError } from '../../errors/errors.js';
 import { generateShortCode } from './short-code.js';
 
-export async function create(url: string, shortCode?: string) {
+type CreateInput = {
+  url: string;
+  shortCode?: string;
+  creatorId: string;
+};
+
+export async function create({ url, shortCode, creatorId }: CreateInput) {
   const MAX_ATTEMPTS = 5;
 
   if (shortCode) {
@@ -26,6 +32,7 @@ export async function create(url: string, shortCode?: string) {
         data: {
           originalUrl: url,
           shortCode,
+          creatorId,
         },
       });
 
@@ -57,7 +64,61 @@ export async function getOriginalUrl(shortCode: string) {
   return link.originalUrl;
 }
 
+export async function getAllForUser(userId: string) {
+  const links = await prisma.link.findMany({
+    where: { creatorId: userId },
+  });
+
+  return links;
+}
+
+export async function getOne(linkId: string, userId: string) {
+  const link = await prisma.link.findFirst({
+    where: {
+      id: linkId,
+      creatorId: userId
+    },
+  });
+
+  if (!link) {
+    throw new NotFoundError('Link not found.');
+  }
+
+  return link;
+}
+
+export async function remove(linkId: string, userId: string) {
+  const link = await prisma.link.findFirst({
+    where: {
+      id: linkId,
+      creatorId: userId
+    },
+  });
+
+  if (!link) {
+    throw new NotFoundError('Link not found.');
+  }
+
+  try {
+    await prisma.link.delete({
+      where: { id: linkId },
+    });
+  } catch (error) {
+    if (
+      error instanceof PrismaClientKnownRequestError &&
+      error.code === 'P2025'
+    ) {
+      throw new NotFoundError('Link not found.');
+    }
+
+    throw error;
+  }
+}
+
 export const linkService = {
   create,
   getOriginalUrl,
+  getAllForUser,
+  getOne,
+  delete: remove,
 };

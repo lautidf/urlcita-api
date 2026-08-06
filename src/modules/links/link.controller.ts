@@ -1,13 +1,18 @@
 import { Request, Response } from 'express';
-import { createRequestSchema, redirectRequestSchema } from './link.schemas.js';
+import { createRequestSchema, getOneRequestSchema, redirectRequestSchema } from './link.schemas.js';
 import { linkService } from './link.service.js';
 
 export async function create(req: Request, res: Response) {
   const { body } = createRequestSchema.parse(req);
+  const { user } = req;
 
   const { url, shortCode } = body;
 
-  const link = await linkService.create(url, shortCode);
+  const link = await linkService.create({
+    url,
+    shortCode,
+    creatorId: user.id
+  });
 
   res.status(201).json(link);
 }
@@ -20,4 +25,32 @@ export async function redirect(req: Request, res: Response) {
   const originalUrl = await linkService.getOriginalUrl(shortCode);
 
   res.redirect(originalUrl);
+}
+
+export async function getAllForUser(req: Request, res: Response) {
+  const { user } = req;
+
+  const links = await linkService.getAllForUser(user.id);
+
+  res.status(200).json(links);
+}
+
+export async function getOne(req: Request, res: Response) {
+  const { params } = getOneRequestSchema.parse(req);
+
+  const { linkId } = params;
+
+  const link = await linkService.getOne(linkId, req.user.id);
+
+  res.status(200).json(link);
+}
+
+export async function remove(req: Request, res: Response) {
+  const { params } = getOneRequestSchema.parse(req);
+
+  const { linkId } = params;
+
+  await linkService.delete(linkId, req.user.id);
+
+  res.status(204).send();
 }

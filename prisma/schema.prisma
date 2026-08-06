@@ -12,6 +12,9 @@ model Link {
 
 	originalUrl String
 	shortCode String @unique
+  creatorId String
+
+  creator User @relation(fields: [creatorId], references: [id])
 
 	createdAt DateTime @default(now())
 }
@@ -22,6 +25,8 @@ model User {
   email String @unique
   passwordHash String
   name String
+
+  links Link[]
   
   createdAt DateTime @default(now())
 }
