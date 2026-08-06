@@ -154,7 +154,7 @@ describe('GET /links', () => {
   });
 });
 
-describe('GET /links/:linkId', () => {
+describe('GET /links/:id', () => {
   it('rejects unauthenticated requests', async () => {
     const response = await request(app)
       .get('/links/1');
@@ -197,7 +197,7 @@ describe('GET /links/:linkId', () => {
   });
 });
 
-describe('DELETE /links/:linkId', () => {
+describe('DELETE /links/:id', () => {
   it('rejects unauthenticated requests', async () => {
     const response = await request(app)
       .delete('/links/1');

@@ -38,9 +38,9 @@ export async function getAllForUser(req: Request, res: Response) {
 export async function getOne(req: Request, res: Response) {
   const { params } = getOneRequestSchema.parse(req);
 
-  const { linkId } = params;
+  const { id } = params;
 
-  const link = await linkService.getOne(linkId, req.user.id);
+  const link = await linkService.getOne(id, req.user.id);
 
   res.status(200).json(link);
 }
@@ -48,9 +48,9 @@ export async function getOne(req: Request, res: Response) {
 export async function remove(req: Request, res: Response) {
   const { params } = removeRequestSchema.parse(req);
 
-  const { linkId } = params;
+  const { id } = params;
 
-  await linkService.delete(linkId, req.user.id);
+  await linkService.delete(id, req.user.id);
 
   res.status(204).send();
 }

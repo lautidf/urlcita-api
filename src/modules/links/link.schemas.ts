@@ -20,7 +20,7 @@ export const redirectRequestSchema = z.object({
 });
 
 export const getOneParamsSchema = z.object({
-  linkId: z.cuid2(),
+  id: z.cuid2(),
 });
 
 export const getOneRequestSchema = z.object({
@@ -28,7 +28,7 @@ export const getOneRequestSchema = z.object({
 });
 
 export const removeParamsSchema = z.object({
-  linkId: z.cuid2(),
+  id: z.cuid2(),
 });
 
 export const removeRequestSchema = z.object({

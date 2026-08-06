@@ -6,7 +6,7 @@ const router = Router();
 
 router.post('/links', authenticateJWT, create);
 router.get('/links', authenticateJWT, getAllForUser);
-router.get('/links/:linkId', authenticateJWT, getOne);
-router.delete('/links/:linkId', authenticateJWT, remove);
+router.get('/links/:id', authenticateJWT, getOne);
+router.delete('/links/:id', authenticateJWT, remove);
 
 export const linkRoutes = router;
