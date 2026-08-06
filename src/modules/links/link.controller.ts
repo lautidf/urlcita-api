@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createRequestSchema, getOneRequestSchema, redirectRequestSchema } from './link.schemas.js';
+import { createRequestSchema, getOneRequestSchema, redirectRequestSchema, removeRequestSchema } from './link.schemas.js';
 import { linkService } from './link.service.js';
 
 export async function create(req: Request, res: Response) {
@@ -46,7 +46,7 @@ export async function getOne(req: Request, res: Response) {
 }
 
 export async function remove(req: Request, res: Response) {
-  const { params } = getOneRequestSchema.parse(req);
+  const { params } = removeRequestSchema.parse(req);
 
   const { linkId } = params;
 

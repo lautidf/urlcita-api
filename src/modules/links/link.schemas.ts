@@ -26,3 +26,11 @@ export const getOneParamsSchema = z.object({
 export const getOneRequestSchema = z.object({
   params: getOneParamsSchema,
 });
+
+export const removeParamsSchema = z.object({
+  linkId: z.cuid2(),
+});
+
+export const removeRequestSchema = z.object({
+  params: removeParamsSchema,
+});
