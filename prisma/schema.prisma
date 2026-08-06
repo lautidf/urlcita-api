@@ -10,13 +10,13 @@ datasource db {
 model Link {
   id String @id @default(cuid())
 
-	originalUrl String
-	shortCode String @unique
+  originalUrl String
+  shortCode String @unique
   creatorId String
 
   creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-	createdAt DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model User {
