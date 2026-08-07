@@ -31,6 +31,7 @@ describe('POST /links', () => {
       .send({ url });
 
     expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty('id');
     expect(response.body).toHaveProperty('shortCode');
     expect(response.body.originalUrl).toBe(url);
 
@@ -53,6 +54,7 @@ describe('POST /links', () => {
       .send({ url, shortCode });
 
     expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty('id');
     expect(response.body.originalUrl).toBe(url);
     expect(response.body.shortCode).toBe(shortCode);
 
@@ -131,12 +133,20 @@ describe('GET /links', () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ id: link1.id }),
-        expect.objectContaining({ id: link2.id })
-      ])
-    );
+    expect(response.body).toEqual([
+      {
+        id: link1.id,
+        originalUrl: link1.originalUrl,
+        shortCode: link1.shortCode,
+        createdAt: link1.createdAt.toISOString()
+      },
+      {
+        id: link2.id,
+        originalUrl: link2.originalUrl,
+        shortCode: link2.shortCode,
+        createdAt: link2.createdAt.toISOString()
+      }
+    ]);
   });
 
   it('does not return links for other users', async () => {
@@ -185,7 +195,12 @@ describe('GET /links/:id', () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('id', link.id);
+    expect(response.body).toEqual({
+      id: link.id,
+      originalUrl: link.originalUrl,
+      shortCode: link.shortCode,
+      createdAt: link.createdAt.toISOString()
+    });
   });
   
   it(
