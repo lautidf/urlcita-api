@@ -34,6 +34,11 @@ export async function create({ url, shortCode, creatorId }: CreateInput) {
           shortCode,
           creatorId,
         },
+        select: {
+          id: true,
+          originalUrl: true,
+          shortCode: true,
+        }
       });
 
       return link;
@@ -72,7 +77,15 @@ export async function resolveAndRecordClick(shortCode: string) {
 
 export async function getAllForUser(userId: string) {
   const links = await prisma.link.findMany({
-    where: { creatorId: userId },
+    where: {
+      creatorId: userId
+    },
+    select: {
+      id: true,
+      originalUrl: true,
+      shortCode: true,
+      createdAt: true,
+    }
   });
 
   return links;
@@ -84,6 +97,12 @@ export async function getById(linkId: string, userId: string) {
       id: linkId,
       creatorId: userId
     },
+    select: {
+      id: true,
+      originalUrl: true,
+      shortCode: true,
+      createdAt: true,
+    }
   });
 
   if (!link) {
