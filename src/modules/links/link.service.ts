@@ -52,7 +52,7 @@ export async function create({ url, shortCode, creatorId }: CreateInput) {
   throw new Error('Failed to generate a unique short code.');
 }
 
-export async function getOriginalUrl(shortCode: string) {
+export async function resolveAndRecordClick(shortCode: string) {
   const link = await prisma.link.findUnique({
     where: { shortCode },
   });
@@ -60,6 +60,12 @@ export async function getOriginalUrl(shortCode: string) {
   if (!link) {
     throw new NotFoundError('Link not found.');
   }
+
+  await prisma.click.create({
+    data: {
+      linkId: link.id
+    }
+  });
 
   return link.originalUrl;
 }
@@ -72,7 +78,7 @@ export async function getAllForUser(userId: string) {
   return links;
 }
 
-export async function getOne(linkId: string, userId: string) {
+export async function getById(linkId: string, userId: string) {
   const link = await prisma.link.findFirst({
     where: {
       id: linkId,
@@ -115,10 +121,69 @@ export async function remove(linkId: string, userId: string) {
   }
 }
 
+export async function getStatistics(linkId: string, userId: string) {
+  const link = await prisma.link.findFirst({
+    where: {
+      id: linkId,
+      creatorId: userId
+    },
+  });
+
+  if (!link) {
+    throw new NotFoundError('Link not found.');
+  }
+  
+  const totalClicks = await prisma.click.count({
+    where: {
+      linkId
+    }
+  });
+
+  const lastClick = await prisma.click.findFirst({
+    where: {
+      linkId
+    },
+    orderBy: {
+      createdAt: 'desc'
+    },
+    select: {
+      createdAt: true
+    }
+  });
+  
+  const clicksByDateResult = await prisma.$queryRaw<
+    { date: Date; clicks: bigint }[]
+  >`
+  SELECT
+    date_trunc('day', "createdAt") AS date,
+    COUNT(*) AS clicks
+  FROM "Click"
+  WHERE "linkId" = ${linkId}
+  GROUP BY date
+  ORDER BY date;
+  `;
+
+  const clicksByDate = clicksByDateResult.map((row) => ({
+    date: row.date.toISOString().split('T')[0],
+    clicks: Number(row.clicks),
+  }));
+
+  const lastClickAt = lastClick ? lastClick.createdAt : null;
+  
+  const statistics = {
+    totalClicks,
+    lastClickAt,
+    clicksByDate,
+  }
+
+  return statistics;
+}
+
 export const linkService = {
   create,
-  getOriginalUrl,
+  resolveAndRecordClick,
   getAllForUser,
-  getOne,
+  getById,
   delete: remove,
+  getStatistics,
 };

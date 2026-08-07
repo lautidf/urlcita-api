@@ -34,3 +34,11 @@ export const removeParamsSchema = z.object({
 export const removeRequestSchema = z.object({
   params: removeParamsSchema,
 });
+
+export const getStatisticsParamsSchema = z.object({
+  id: z.cuid2(),
+});
+
+export const getStatisticsRequestSchema = z.object({
+  params: getStatisticsParamsSchema,
+});

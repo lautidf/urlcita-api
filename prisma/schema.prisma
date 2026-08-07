@@ -10,13 +10,15 @@ datasource db {
 model Link {
   id String @id @default(cuid())
 
-  originalUrl String
-  shortCode String @unique
+	originalUrl String
+	shortCode String @unique
   creatorId String
 
   creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
+  clcks Click[]
+
+	createdAt DateTime @default(now())
 }
 
 model User {
@@ -28,5 +30,15 @@ model User {
 
   links Link[]
   
+  createdAt DateTime @default(now())
+}
+
+model Click {
+  id String @id @default(cuid())
+
+  linkId String
+
+  link Link @relation(fields: [linkId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
 }

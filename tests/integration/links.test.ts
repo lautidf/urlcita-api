@@ -6,6 +6,7 @@ import { createLink } from '../helpers/link.js';
 import { createAuthenticatedUser } from '../helpers/auth.js';
 import { createUser } from '../helpers/user.js';
 import { createId } from '@paralleldrive/cuid2';
+import { createClick } from '../helpers/click.js';
 
 function randomCUID() {
   return createId();
@@ -90,7 +91,20 @@ describe('GET /:shortCode', () => {
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe(link.originalUrl);
   });
-  
+
+  it('records a click', async () => {
+    const link = await createLink();
+
+    await request(app)
+      .get(`/${link.shortCode}`);
+
+    const click = await prisma.click.findFirst({
+      where: { linkId: link.id }
+    });
+
+    expect(click).not.toBeNull();
+  });
+
   it('returns 404 if short code does not exist', async () => {
     const response = await request(app)
       .get('/badc0d');
@@ -238,6 +252,74 @@ describe('DELETE /links/:id', () => {
     const { token } = await createAuthenticatedUser();
     const response = await request(app)
       .delete(`/links/${randomCUID()}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(404);
+  });
+});
+
+describe('GET /links/:id/stats', () => {
+  it('rejects unauthenticated requests', async () => {
+    const response = await request(app)
+      .get('/links/1/stats');
+
+    expect(response.status).toBe(401);
+  });
+
+  it('returns statistics for a link with no clicks', async () => {
+    const { token, user } = await createAuthenticatedUser();
+    const link = await createLink(user.id);
+
+    const response = await request(app)
+      .get(`/links/${link.id}/stats`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      totalClicks: 0,
+      lastClickAt: null,
+      clicksByDate: []
+    });
+  });
+
+  it('returns statistics for a link with clicks', async () => {
+    const { token, user } = await createAuthenticatedUser();
+    const link = await createLink(user.id);
+    await createClick(link.id, new Date('2026-08-01T00:00:00.000Z'));
+    await createClick(link.id, new Date('2026-08-01T00:00:01.000Z'));
+    await createClick(link.id, new Date('2026-08-03'));
+
+    const response = await request(app)
+      .get(`/links/${link.id}/stats`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      totalClicks: 3,
+      lastClickAt: '2026-08-03T00:00:00.000Z',
+      clicksByDate: [
+        { date: '2026-08-01', clicks: 2 },
+        { date: '2026-08-03', clicks: 1 }
+      ]
+    });
+  });
+
+  it('returns 404 if the link does not belong to the authenticated user', async () => {
+    const { token } = await createAuthenticatedUser();
+    const otherUser = await createUser();
+    const otherUserLink = await createLink(otherUser.id);
+
+    const response = await request(app)
+      .get(`/links/${otherUserLink.id}/stats`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(404);
+  });
+
+  it('returns 404 if the link does not exist', async () => {
+    const { token } = await createAuthenticatedUser();
+    const response = await request(app)
+      .get(`/links/${randomCUID()}/stats`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(404);
