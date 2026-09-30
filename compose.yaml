@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: urlcita
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  postgres-test:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: urlcita_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  postgres_test_data:
