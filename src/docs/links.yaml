@@ -1,0 +1,183 @@
+paths:
+  /links:
+    post:
+      summary: Create a new link
+      tags:
+        - Links
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  $ref: '#/components/schemas/Url'
+                shortCode:
+                  $ref: '#/components/schemas/ShortCode'
+              required:
+                - url
+      responses:
+        '201':
+          description: Link created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    get:
+      summary: Get all links for the authenticated user
+      tags:
+        - Links
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of links.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Link'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /links/{id}:
+    get:
+      summary: Get a link by ID
+      tags:
+        - Links
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/linkId'
+      responses:
+        '200':
+          description: Link details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a link by ID
+      tags:
+        - Links
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/linkId'
+      responses:
+        '204':
+          description: Link deleted successfully.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /{shortCode}:
+    get:
+      summary: Redirect to the original URL
+      description: >
+        Note: Swagger UI's "Try it out" uses fetch(), so browsers may report a CORS error when the redirect points to another origin. Open the short URL directly in the browser to test the redirect.
+      tags:
+        - Links
+      parameters:
+        - name: shortCode
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/ShortCode'
+      responses:
+        '302':
+          description: Redirects to the original URL.
+        '404':
+          description: Link not found.
+  /links/{id}/stats:
+    get:
+      summary: Get statistics for a link by ID
+      tags:
+        - Links
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/linkId'
+      responses:
+        '200':
+          description: Link statistics.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalClicks:
+                    type: integer
+                  lastClickedAt:
+                    $ref: '#/components/schemas/DateTime'
+                  clicksByDate:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        clicks:
+                          type: integer
+              example:
+                totalClicks: 150
+                lastClickedAt: '2026-08-03T12:34:56Z'
+                clicksByDate:
+                  - date: '2024-08-01'
+                    clicks: 50
+                  - date: '2026-08-03'
+                    clicks: 100
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    Url:
+      type: string
+      format: uri
+    ShortCode:
+      type: string
+      pattern: '^[a-zA-Z0-9]{6}$'
+    DateTime:
+      type: string
+      format: date-time
+    Link:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        originalUrl:
+          $ref: '#/components/schemas/Url'
+        shortCode:
+          $ref: '#/components/schemas/ShortCode'
+        createdAt:
+          $ref: '#/components/schemas/DateTime'
+  parameters:
+    linkId:
+      name: id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Id'
+  responses:
+    NotFound:
+      description: A referenced resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

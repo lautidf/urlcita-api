@@ -1,0 +1,99 @@
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  $ref: '#/components/schemas/UserName'
+                email:
+                  $ref: '#/components/schemas/Email'
+                password:
+                  $ref: '#/components/schemas/Password'
+              required:
+                - name
+                - email
+                - password
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /login:
+    post:
+      summary: Log a user in
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  $ref: '#/components/schemas/Email'
+                password:
+                  $ref: '#/components/schemas/Password'
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        $ref: '#/components/schemas/Id'
+                      name:
+                        $ref: '#/components/schemas/UserName'
+                      email:
+                        $ref: '#/components/schemas/Email'
+                  token:
+                    type: string
+                    format: JWT
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid credentials.
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    UserName:
+      type: string
+      example: 'John Doe'
+    Email:
+      type: string
+      format: email
+    Password:
+      type: string
+      example: 'Password123!'
+    User:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        name:
+          $ref: '#/components/schemas/UserName'
+        email:
+          $ref: '#/components/schemas/Email'

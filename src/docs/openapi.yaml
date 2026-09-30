@@ -1,0 +1,37 @@
+components:
+  securitySchemes:
+    bearerAuth:
+      description: Bearer token using a JWT
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Error message.
+    Id:
+      type: string
+      format: cuid
+      example: ck1b2c3d4e5f6g7h8i9j0k1l2
+  responses:
+    BadRequest:
+      description: The request is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentication is required.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: The request conflicts with the current state of the resource.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
