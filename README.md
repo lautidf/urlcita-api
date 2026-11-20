@@ -2,6 +2,9 @@
 
 A REST API for shortening URLs, managing links, and tracking click statistics.
 
+**Live API:** https://urlcita-api.onrender.com/ 
+**Swagger UI:** https://urlcita-api.onrender.com/docs
+
 ## Features
 
 - User registration and authentication using JWT.
