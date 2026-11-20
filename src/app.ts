@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import { errorHandler } from './middleware/error.middleware.js';
 import { linkRoutes } from './modules/links/link.routes.js';
@@ -23,6 +23,10 @@ app.use(
 );
 
 app.use(express.json());
+
+app.get('/', (_req, res: Response) => {
+  res.json({ status: 'ok' });
+});
 
 app.use('/', authRoutes);
 app.use('/', linkRoutes);
